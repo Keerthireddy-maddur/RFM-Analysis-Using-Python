@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Code and Visualizations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .code-block {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: monospace;
+            margin-bottom: 30px;
+        }
+        .chart {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Python Code and Visualizations</h1>
+
+    <!-- Display Python Code -->
+    <h2>Python Code:</h2>
+    <div class="code-block">
+        <pre>
+# Import necessary libraries
+import pandas as pd
+import plotly.express as px
+import plotly.io as pio
+import plotly.graph_objects as go
+from datetime import datetime
+
+%matplotlib inline
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+# Set default plotly template
+pio.templates.default = "plotly_white"
+
+# Load the data
+data = pd.read_csv(r"C:\Users\maddh\Downloads\rfm_data.csv")
+
+# Ensure 'PurchaseDate' is in datetime format
+data['PurchaseDate'] = pd.to_datetime(data['PurchaseDate'])
+
+# Calculate Recency (days since last purchase)
+today_date = datetime.now()
+data['Recency'] = (today_date - data['PurchaseDate']).dt.days  
+
+# Calculate Frequency (Number of orders per Customer)
+frequency_data = data.groupby('CustomerID')['OrderID'].count().reset_index()
+frequency_data.rename(columns={'OrderID': 'Frequency'}, inplace=True)
+
+# Merge Frequency Data
+data = data.merge(frequency_data, on='CustomerID', how='left')
+
+# Calculate Monetary Value (Total spending per Customer)
+monetary_data = data.groupby('CustomerID')['TransactionAmount'].sum().reset_index()
+monetary_data.rename(columns={'TransactionAmount': 'MonetaryValue'}, inplace=True)
+
+# Merge Monetary Value Data
+data = data.merge(monetary_data, on='CustomerID', how='left')
+
+# Define scoring criteria for each RFM value
+recency_scores = [5, 4, 3, 2, 1]  
+frequency_scores = [1, 2, 3, 4, 5]  
+monetary_scores = [1, 2, 3, 4, 5]  
+
+# Calculate RFM scores
+data['RecencyScore'] = pd.cut(data['Recency'], bins=5, labels=recency_scores)
+data['FrequencyScore'] = pd.cut(data['Frequency'], bins=5, labels=frequency_scores)
+data['MonetaryScore'] = pd.cut(data['MonetaryValue'], bins=5, labels=monetary_scores)
+
+# Convert RFM scores to numeric type
+data['RecencyScore'] = data['RecencyScore'].astype(int)
+data['FrequencyScore'] = data['FrequencyScore'].astype(int)
+data['MonetaryScore'] = data['MonetaryScore'].astype(int)
+
+# Calculate RFM score by combining the individual scores
+data['RFM_Score'] = data['RecencyScore'] + data['FrequencyScore'] + data['MonetaryScore']
+
+# Create RFM segments based on the RFM score
+segment_labels = ['Low-Value', 'Mid-Value', 'High-Value']
+data['Value Segment'] = pd.qcut(data['RFM_Score'], q=3, labels=segment_labels)
+
+# Generate visualizations
+# Segment Distribution Bar Chart
+segment_counts = data['Value Segment'].value_counts().reset_index()
+segment_counts.columns = ['Value Segment', 'Count']
+fig_segment_dist = px.bar(segment_counts, x='Value Segment', y='Count', color='Value Segment', 
+                          color_discrete_sequence=px.colors.qualitative.Pastel, title='RFM Value Segment Distribution')
+
+# RFM Customer Segments assignment
+data['RFM Customer Segments'] = ''
+data.loc[data['RFM_Score'] >= 9, 'RFM Customer Segments'] = 'Champions'
+data.loc[(data['RFM_Score'] >= 6) & (data['RFM_Score'] < 9), 'RFM Customer Segments'] = 'Potential Loyalists'
+data.loc[(data['RFM_Score'] >= 5) & (data['RFM_Score'] < 6), 'RFM Customer Segments'] = 'At Risk Customers'
+
+# Save visualizations
+fig_segment_dist.write_html("segment_distribution.html")
+        </pre>
+    </div>
+
+    <!-- Display Plotly charts -->
+    <h2>Visualizations:</h2>
+
+    <div class="chart">
+        <h3>RFM Segment Distribution</h3>
+        <iframe src="segment_distribution.html" width="800" height="400"></iframe>
+    </div>
+
+    <div class="chart">
+        <h3>Treemap of Customer Segments by Value</h3>
+        <iframe src="treemap_segment_product.html" width="800" height="500"></iframe>
+    </div>
+
+    <div class="chart">
+        <h3>Boxplots for Champions Segment</h3>
+        <iframe src="champions_segment_rfm_distribution.html" width="800" height="400"></iframe>
+    </div>
+
+    <div class="chart">
+        <h3>Heatmap of RFM Correlations</h3>
+        <iframe src="champions_segment_rfm_heatmap.html" width="800" height="500"></iframe>
+    </div>
+
+    <div class="chart">
+        <h3>RFM Segment Comparison</h3>
+        <iframe src="rfm_segments_comparison.html" width="800" height="400"></iframe>
+    </div>
+
+    <div class="chart">
+        <h3>RFM Segment Comparison Scores</h3>
+        <iframe src="rfm_segment_comparison_scores.html" width="800" height="400"></iframe>
+    </div>
+
+</body>
+</html>

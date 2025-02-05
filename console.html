@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFM Analysis - Visualizations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        iframe {
+            border: none;
+            width: 100%;
+            height: 600px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RFM Analysis - Visualizations</h1>
+
+        <!-- Embed the segment distribution chart -->
+        <h2>RFM Value Segment Distribution</h2>
+        <iframe src="segment_distribution.html"></iframe>
+
+        <!-- Embed the treemap chart -->
+        <h2>RFM Customer Segments by Value</h2>
+        <iframe src="treemap_segment_product.html"></iframe>
+
+        <!-- Embed the champions segment box plot -->
+        <h2>Distribution of RFM Values within Champions Segment</h2>
+        <iframe src="champions_segment_rfm_distribution.html"></iframe>
+
+        <!-- Embed the correlation heatmap -->
+        <h2>Correlation Matrix of RFM Values within Champions Segment</h2>
+        <iframe src="champions_segment_rfm_heatmap.html"></iframe>
+
+        <!-- Embed the comparison of RFM Segments chart -->
+        <h2>Comparison of RFM Segments based on Recency, Frequency, and Monetary Scores</h2>
+        <iframe src="rfm_segment_comparison_scores.html"></iframe>
+
+        <!-- Add more sections for additional figures if needed -->
+    </div>
+</body>
+</html>
